@@ -6,23 +6,23 @@ const Apify = require('apify');
 exports.handleStart = async ({ $ }) => {
   const requestQueue = await Apify.openRequestQueue();
   // start page, add all categories links to requestQueue
-  
   const links = $('ul.main-menu-nav li.has-sub-nav > a');
   const menu = [];
-    for (link in links) {
-      if (links[link].attribs.href) {
-        menu.push('https://www.kasa.cz' + links[link].attribs.href);
+  for (link in links) {
+      if (links[link].attribs && links[link].attribs.href) {
+        menu.push(links[link].attribs.href);
         await requestQueue.addRequest({
           url: 'https://www.kasa.cz' + links[link].attribs.href,
           userData: { label: 'LIST' },
       });
-      console.log(links[link])
+      console.log(`Saving ${links[link].attribs.href} to request queue.`)
       }
     }  
-  return menu
+  console.log(`Saved all links (${menu.length}) to request queue.`)
 };
 
-exports.handleList = async ({ $ }) => {
+//v {} si posilam informace, ktere chci mit, tedy tady navic state, ve kterem je pocet produktu, a request, ze ktereho taham url a mohu tahat i label
+exports.handleList = async ({ $, state, request }) => {
   // const requestQueue = await Apify.openRequestQueue();
   let cat = $('.tit')  
   let list = [];
@@ -36,5 +36,9 @@ exports.handleList = async ({ $ }) => {
   let sum = 0
   for (l in list) { 
     sum += Number(list[l].replace(/\D/g, ''))
+    // console.log(`Adding ${list[l].replace(/\D/g, '')} items from category ${list[l]}`)
     }
+  //kdyz to mam cele vypocitane, pridam to k tomu, co uz mam spocitane z jinych stranek
+  state.productCount += sum;
+  console.log(`Products on this page: ${sum}, ${request.url}, products altogether so far ${state.productCount}`)
 };
