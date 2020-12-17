@@ -26,12 +26,13 @@ exports.handleList = async ({ $ }) => {
   // const requestQueue = await Apify.openRequestQueue();
   let cat = $('.tit')  
   let list = [];
-  for (c in cat) 
-    { if (cat[c].textContent) 
+  for (c of cat.get()) 
+    { if ($(c).text()) 
       { 
-        list.push( cat[c].textContent.trim() ) 
+        list.push( $(c).text().trim() ) 
       } 
     }
+  // how do I save this not to delete it in every run? dám sum někam jinam, na zacatek? A jak ho pak nasdilim sem?
   let sum = 0
   for (l in list) { 
     sum += Number(list[l].replace(/\D/g, ''))
